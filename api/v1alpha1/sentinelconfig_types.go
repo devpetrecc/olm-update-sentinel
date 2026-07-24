@@ -44,6 +44,7 @@ type SentinelConfigStatus struct {
 
 // +kubebuilder:object:root=true
 // +kubebuilder:subresource:status
+// +kubebuilder:resource:path=sentinelconfigs,singular=sentinelconfig,shortName=sentinel;ous,categories=all
 
 type SentinelConfig struct {
 	metav1.TypeMeta   `json:",inline"`

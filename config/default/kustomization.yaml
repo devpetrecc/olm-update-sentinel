@@ -3,6 +3,10 @@ kind: Kustomization
 
 namespace: olm-update-sentinel-system
 
+commonLabels:
+  app.kubernetes.io/name: "OLM Update Sentinel"
+  app.kubernetes.io/part-of: "OLM Update Sentinel"
+
 resources:
   - ../rbac/service_account.yaml
   - ../rbac/role.yaml
