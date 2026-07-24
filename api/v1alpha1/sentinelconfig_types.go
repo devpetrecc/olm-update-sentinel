@@ -1,26 +1,30 @@
 package v1alpha1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type SlackConfig struct {
-	Enabled    bool   `json:"enabled"`
-	WebhookURL string `json:"webhookUrl,omitempty"`
+	Enabled          bool                      `json:"enabled"`
+	WebhookURL       string                    `json:"webhookUrl,omitempty"`
+	WebhookURLSecret *corev1.SecretKeySelector `json:"webhookUrlSecret,omitempty"`
 }
 
 type TeamsConfig struct {
-	Enabled    bool   `json:"enabled"`
-	WebhookURL string `json:"webhookUrl,omitempty"`
+	Enabled          bool                      `json:"enabled"`
+	WebhookURL       string                    `json:"webhookUrl,omitempty"`
+	WebhookURLSecret *corev1.SecretKeySelector `json:"webhookUrlSecret,omitempty"`
 }
 
 type EmailConfig struct {
-	Enabled           bool     `json:"enabled"`
-	SmtpHost          string   `json:"smtpHost,omitempty"`
-	SmtpPort          int      `json:"smtpPort,omitempty"`
-	From              string   `json:"from,omitempty"`
-	To                []string `json:"to,omitempty"`
-	PasswordSecretRef string   `json:"passwordSecretRef,omitempty"`
+	Enabled        bool                      `json:"enabled"`
+	SmtpHost       string                    `json:"smtpHost,omitempty"`
+	SmtpPort       int                       `json:"smtpPort,omitempty"`
+	From           string                    `json:"from,omitempty"`
+	To             []string                  `json:"to,omitempty"`
+	Password       string                    `json:"password,omitempty"`
+	PasswordSecret *corev1.SecretKeySelector `json:"passwordSecret,omitempty"`
 }
 
 type SentinelConfigSpec struct {
@@ -49,7 +53,7 @@ type SentinelConfig struct {
 type SentinelConfigList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items             []SentinelConfig `json:"items"`
+	Items           []SentinelConfig `json:"items"`
 }
 
 func init() {

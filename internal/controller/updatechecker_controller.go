@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	operatorsv1alpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
@@ -21,6 +22,37 @@ import (
 type SubscriptionReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
+}
+
+// resolveSecretKey checks direct Value first, then falls back to resolving SecretKeySelector
+func (r *SubscriptionReconciler) resolveSecretKey(
+	ctx context.Context,
+	namespace string,
+	directVal string,
+	selector *corev1.SecretKeySelector,
+) (string, error) {
+	if directVal != "" {
+		return directVal, nil
+	}
+
+	if selector != nil {
+		var sec corev1.Secret
+		secKey := types.NamespacedName{
+			Name:      selector.Name,
+			Namespace: namespace,
+		}
+		if err := r.Get(ctx, secKey, &sec); err != nil {
+			return "", fmt.Errorf("failed to fetch secret %s: %w", selector.Name, err)
+		}
+
+		bytes, ok := sec.Data[selector.Key]
+		if !ok {
+			return "", fmt.Errorf("key %q not found in secret %s", selector.Key, selector.Name)
+		}
+		return string(bytes), nil
+	}
+
+	return "", nil
 }
 
 func (r *SubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
@@ -101,40 +133,44 @@ func (r *SubscriptionReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 			// Dispatch Slack
 			if cfg.Spec.Slack.Enabled {
-				if err := notifier.SendSlack(cfg.Spec.Slack.WebhookURL, alert); err != nil {
-					logger.Error(err, "Failed to send Slack alert", "subscription", sub.Name)
+				slackURL, err := r.resolveSecretKey(ctx, req.Namespace, cfg.Spec.Slack.WebhookURL, cfg.Spec.Slack.WebhookURLSecret)
+				if err != nil {
+					logger.Error(err, "Failed to resolve Slack webhook URL secret", "subscription", sub.Name)
+				} else if slackURL != "" {
+					if err := notifier.SendSlack(slackURL, alert); err != nil {
+						logger.Error(err, "Failed to send Slack alert", "subscription", sub.Name)
+					}
 				}
 			}
 
 			// Dispatch Teams
 			if cfg.Spec.Teams.Enabled {
-				if err := notifier.SendTeams(cfg.Spec.Teams.WebhookURL, alert); err != nil {
-					logger.Error(err, "Failed to send Teams alert", "subscription", sub.Name)
+				teamsURL, err := r.resolveSecretKey(ctx, req.Namespace, cfg.Spec.Teams.WebhookURL, cfg.Spec.Teams.WebhookURLSecret)
+				if err != nil {
+					logger.Error(err, "Failed to resolve Teams webhook URL secret", "subscription", sub.Name)
+				} else if teamsURL != "" {
+					if err := notifier.SendTeams(teamsURL, alert); err != nil {
+						logger.Error(err, "Failed to send Teams alert", "subscription", sub.Name)
+					}
 				}
 			}
 
 			// Dispatch Email / Outlook
 			if cfg.Spec.Email.Enabled {
-				var password string
-				if cfg.Spec.Email.PasswordSecretRef != "" {
-					var sec corev1.Secret
-					secKey := types.NamespacedName{Name: cfg.Spec.Email.PasswordSecretRef, Namespace: req.Namespace}
-					if err := r.Get(ctx, secKey, &sec); err == nil {
-						password = string(sec.Data["password"])
-					} else {
-						logger.Error(err, "Failed to read Outlook password secret", "secret", cfg.Spec.Email.PasswordSecretRef)
+				password, err := r.resolveSecretKey(ctx, req.Namespace, cfg.Spec.Email.Password, cfg.Spec.Email.PasswordSecret)
+				if err != nil {
+					logger.Error(err, "Failed to resolve Email password secret", "subscription", sub.Name)
+				} else {
+					if err := notifier.SendOutlookSMTP(
+						cfg.Spec.Email.SmtpHost,
+						cfg.Spec.Email.SmtpPort,
+						cfg.Spec.Email.From,
+						password,
+						cfg.Spec.Email.To,
+						alert,
+					); err != nil {
+						logger.Error(err, "Failed to send Email/Outlook alert", "subscription", sub.Name)
 					}
-				}
-
-				if err := notifier.SendOutlookSMTP(
-					cfg.Spec.Email.SmtpHost,
-					cfg.Spec.Email.SmtpPort,
-					cfg.Spec.Email.From,
-					password,
-					cfg.Spec.Email.To,
-					alert,
-				); err != nil {
-					logger.Error(err, "Failed to send Email/Outlook alert", "subscription", sub.Name)
 				}
 			}
 		}
