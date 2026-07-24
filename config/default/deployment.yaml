@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: olm-update-sentinel-controller-manager
+  namespace: olm-update-sentinel-system
+  labels:
+    control-plane: controller-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      labels:
+        control-plane: controller-manager
+    spec:
+      serviceAccountName: olm-update-sentinel-sa
+      containers:
+        - name: manager
+          image: ghcr.io/your-username/olm-update-sentinel:latest
+          command:
+            - /manager
+          ports:
+            - containerPort: 8080
+              name: metrics
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi

@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: olm-update-sentinel-alerts
+  namespace: olm-update-sentinel-system
+spec:
+  groups:
+    - name: olm-sentinel-rules
+      rules:
+        - alert: OperatorManualUpdatePending
+          expr: olm_sentinel_update_available{approval_strategy="Manual"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Manual approval required for {{ $labels.package }}"
+            description: "Operator {{ $labels.package }} in {{ $labels.namespace }} has an update pending from {{ $labels.installed_csv }} to {{ $labels.latest_csv }}."
+
+        - alert: OperatorAutomaticUpdateApplied
+          expr: olm_sentinel_update_available{approval_strategy="Automatic"} == 1
+          for: 5m
+          labels:
+            severity: info
+          annotations:
+            summary: "Automatic update active for {{ $labels.package }}"
+            description: "Operator {{ $labels.package }} in {{ $labels.namespace }} is automatically upgrading to {{ $labels.latest_csv }}."
+
+        - alert: OperatorNewChannelAvailable
+          expr: olm_sentinel_new_channel_available == 1
+          for: 1h
+          labels:
+            severity: info
+          annotations:
+            summary: "New channel available for {{ $labels.package }}"
+            description: "Operator {{ $labels.package }} is on channel '{{ $labels.current_channel }}', but new channels exist: [{{ $labels.available_channels }}]."
