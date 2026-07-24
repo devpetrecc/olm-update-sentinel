@@ -1,4 +1,4 @@
-name: CI
+name: Build Operator
 
 on:
     push:
@@ -11,7 +11,7 @@ env:
     IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-    test-and-build:
+    build-operator:
         runs-on: ubuntu-latest
         permissions:
             contents: read
