@@ -2,17 +2,17 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/devpetrecc/olm-update-sentinel)](https://goreportcard.com/report/github.com/devpetrecc/olm-update-sentinel)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# olm-update-sentinel
+# OLM Update Sentinel
 
-A Kubernetes and OpenShift operator that continuously watches OLM subscriptions, exposes Prometheus metrics for channel updates, and alerts your team via Slack, Teams, and Outlook before versions fall behind.
+A production-grade Kubernetes/OpenShift operator built in Go using Kubebuilder. **OLM Update Sentinel** continuously monitors Operator Lifecycle Manager (OLM) subscriptions, detects version/channel drifts, and dispatches multi-channel alerts (Slack, Microsoft Teams, and Outlook) and also exposes Prometheus metrics for channel updates to be sent to Alertmanager.
 
 ## Key Features
 
 - **Real-Time Reconciliation:** Continuously monitors OLM `Subscription` and `PackageManifest` objects to detect available version upgrades and channel drifts immediately.
 - **Dual Alerting Architecture:** Dispatches direct alerts to chat and email notifications while also exposing native Prometheus gauge metrics for centralized scraping.
-- **Production-Grade Security:** Supports dynamic credential resolution via Kubernetes `SecretKeySelector` references, helping avoid plain-text secrets in CRD specs. [web:4]
+- **Production-Grade Security:** Supports dynamic credential resolution via Kubernetes `SecretKeySelector` references, helping avoid plain-text secrets in CRD specs.
 - **Multi-Channel Dispatcher:** Built-in webhook and SMTP integration for Slack, Microsoft Teams, and Outlook / Office 365.
-- **Native Observability:** Seamless integration with Prometheus Operator using standard `ServiceMonitor` and `PrometheusRule` manifests. [web:2][web:7][web:10]
+- **Native Observability:** Seamless integration with Prometheus Operator using standard `ServiceMonitor` and `PrometheusRule` manifests.
 
 ## Architecture Overview
 
@@ -111,11 +111,11 @@ Apply the configuration:
 kubectl apply -f sentinel-config.yaml
 ```
 
-> Note: Direct plain-text fields such as `webhookUrl` and `password` are supported in `SentinelConfig` for development and testing, though using `SecretKeySelector` references is strongly recommended for production environments. [web:4]
+> Note: Direct plain-text fields such as `webhookUrl` and `password` are supported in `SentinelConfig` for development and testing, though using `SecretKeySelector` references is strongly recommended for production environments.
 
 ## Prometheus Integration
 
-If you prefer routing alerts through Alertmanager instead of direct webhooks, the operator exposes metrics on `:8080/metrics`. `ServiceMonitor` is the standard Prometheus Operator resource for scraping endpoints, and `PrometheusRule` is the standard resource for defining alerting and recording rules. [web:2][web:7][web:10]
+If you prefer routing alerts through Alertmanager instead of direct webhooks, the operator exposes metrics on `:8080/metrics`. `ServiceMonitor` is the standard Prometheus Operator resource for scraping endpoints, and `PrometheusRule` is the standard resource for defining alerting and recording rules.
 
 ### ServiceMonitor Manifest
 
@@ -173,3 +173,21 @@ Pre-configured, copy-pasteable manifests are available under `config/samples/`:
 - `config/samples/sentinel_secrets.yaml` — Secret template for Slack, Teams, and SMTP passwords.
 - `config/samples/servicemonitor.yaml` — Prometheus Operator `ServiceMonitor`.
 - `config/samples/prometheusrule.yaml` — Pre-packaged Alertmanager routing rules.
+
+## 📦 Installation Options
+
+You can install **OLM Update Sentinel** using either native Kustomize manifests or via OLM Operator Lifecycle Manager bundles.
+
+### Option A: Standard Deployment (Kustomize)
+Deploy the controller directly using native manifests:
+
+```bash
+make deploy
+```
+
+### Option B: OLM Bundle Installation (Operator Lifecycle Manager)
+Deploy via the published OLM bundle image on GitHub Container Registry (GHCR):
+
+```bash
+operator-sdk run bundle ghcr.io/devpetrecc/olm-update-sentinel-bundle:latest
+```
