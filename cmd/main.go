@@ -14,8 +14,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
-	"github.com/your-username/olm-update-sentinel/internal/controller"
-	_ "github.com/your-username/olm-update-sentinel/internal/metrics"
+	sentinelv1alpha1 "github.com/devpetrecc/olm-update-sentinel/api/v1alpha1"
+	"github.com/devpetrecc/olm-update-sentinel/internal/controller"
+	_ "github.com/devpetrecc/olm-update-sentinel/internal/metrics"
 )
 
 var (
@@ -27,6 +28,7 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 	utilruntime.Must(operatorsv1alpha1.AddToScheme(scheme))
 	utilruntime.Must(packagesv1.AddToScheme(scheme))
+	utilruntime.Must(sentinelv1alpha1.AddToScheme(scheme))
 }
 
 func main() {
@@ -48,7 +50,7 @@ func main() {
 		Scheme:                 scheme,
 		Metrics:                metricsserver.Options{BindAddress: metricsAddr},
 		HealthProbeBindAddress: probeAddr,
-		LeaderElection:          enableLeaderElection,
+		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "olm-update-sentinel-lock",
 	})
 	if err != nil {
