@@ -5,18 +5,21 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +kubebuilder:object:generate=true
 type SlackConfig struct {
 	Enabled          bool                      `json:"enabled"`
 	WebhookURL       string                    `json:"webhookUrl,omitempty"`
 	WebhookURLSecret *corev1.SecretKeySelector `json:"webhookUrlSecret,omitempty"`
 }
 
+// +kubebuilder:object:generate=true
 type TeamsConfig struct {
 	Enabled          bool                      `json:"enabled"`
 	WebhookURL       string                    `json:"webhookUrl,omitempty"`
 	WebhookURLSecret *corev1.SecretKeySelector `json:"webhookUrlSecret,omitempty"`
 }
 
+// +kubebuilder:object:generate=true
 type EmailConfig struct {
 	Enabled        bool                      `json:"enabled"`
 	SmtpHost       string                    `json:"smtpHost,omitempty"`
@@ -27,12 +30,14 @@ type EmailConfig struct {
 	PasswordSecret *corev1.SecretKeySelector `json:"passwordSecret,omitempty"`
 }
 
+// +kubebuilder:object:generate=true
 type SentinelConfigSpec struct {
 	Slack SlackConfig `json:"slack,omitempty"`
 	Teams TeamsConfig `json:"teams,omitempty"`
 	Email EmailConfig `json:"email,omitempty"`
 }
 
+// +kubebuilder:object:generate=true
 type SentinelConfigStatus struct {
 	LastAlertSent metav1.Time `json:"lastAlertSent,omitempty"`
 }
