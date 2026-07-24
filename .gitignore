@@ -16,9 +16,9 @@ vendor/
 
 # Operator SDK & Kustomize temporary files
 /cover.out
-/bundle/
-!/bundle/manifests
-!/bundle/metadata
+#/bundle/
+#!/bundle/manifests
+#!/bundle/metadata
 *.manifest
 /config/crd/bases/*
 

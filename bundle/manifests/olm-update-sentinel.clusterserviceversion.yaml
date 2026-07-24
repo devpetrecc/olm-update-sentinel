@@ -1,0 +1,49 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  name: olm-update-sentinel.v0.1.0
+  namespace: placeholder
+spec:
+  displayName: "OLM Update Sentinel"
+  description: "Monitors OLM subscriptions and dispatches alerts for drift and updates."
+  version: 0.1.0
+  provider:
+    name: devpetrecc
+  maturity: alpha
+
+  # Icons and categories for the OpenShift OperatorHub GUI
+  icon:
+    - base64data: "iVBORw0KGgoAAAAN..."
+      mediatype: image/png
+  categories:
+    - Monitoring
+    - OpenShift Optional
+
+  # Tells OLM which CRDs this operator manages
+  customresourcedefinitions:
+    owned:
+      - name: sentinelconfigs.sentinel.devpetrecc.io
+        version: v1alpha1
+        kind: SentinelConfig
+        displayName: "Sentinel Configuration"
+        description: "Configures Slack, Teams, and Email notification channels."
+
+  # Embeds your deployment spec directly so OLM knows how to run your pod
+  install:
+    strategy: deployment
+    spec:
+      clusterPermissions:
+        - serviceAccountName: olm-update-sentinel-controller-manager
+          rules:
+            - apiGroups: ["operators.coreos.com"]
+              resources: ["subscriptions", "packagemanifests"]
+              verbs: ["get", "list", "watch"]
+      deployments:
+        - name: olm-update-sentinel-controller-manager
+          spec:
+            replicas: 1
+            template:
+              spec:
+                containers:
+                  - name: manager
+                    image: ghcr.io/devpetrecc/olm-update-sentinel:v0.1.0

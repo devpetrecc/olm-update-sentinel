@@ -1,0 +1,80 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.14.0
+  name: sentinelconfigs.sentinel.devpetrecc.io
+spec:
+  group: sentinel.devpetrecc.io
+  names:
+    categories:
+      - all
+    kind: SentinelConfig
+    listKind: SentinelConfigList
+    plural: sentinelconfigs
+    shortNames:
+      - sentinel
+      - ous
+    singular: sentinelconfig
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                slack:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    webhookUrl:
+                      type: string
+                    webhookUrlSecret:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        key:
+                          type: string
+                teams:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    webhookUrl:
+                      type: string
+                    webhookUrlSecret:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        key:
+                          type: string
+                email:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                    smtpHost:
+                      type: string
+                    smtpPort:
+                      type: integer
+                    from:
+                      type: string
+                    to:
+                      type: array
+                      items:
+                        type: string
+                    passwordSecret:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        key:
+                          type: string
