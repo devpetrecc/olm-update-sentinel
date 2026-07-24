@@ -1,3 +1,7 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/devpetrecc/olm-update-sentinel.svg)](https://pkg.go.dev/github.com/devpetrecc/olm-update-sentinel)
+[![Go Report Card](https://goreportcard.com/badge/github.com/devpetrecc/olm-update-sentinel)](https://goreportcard.com/report/github.com/devpetrecc/olm-update-sentinel)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # olm-update-sentinel
 
 A Kubernetes and OpenShift operator that continuously watches OLM subscriptions, exposes Prometheus metrics for channel updates, and alerts your team via Slack, Teams, and Outlook before versions fall behind.
