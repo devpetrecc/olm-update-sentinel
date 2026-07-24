@@ -1,0 +1,42 @@
+# Binary builds & binaries
+/bin/
+/dist/
+*.exe
+*.exe?
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go cache & test coverage
+*.cover
+*.mo
+vendor/
+
+# Operator SDK & Kustomize temporary files
+/cover.out
+/bundle/
+!/bundle/manifests
+!/bundle/metadata
+*.manifest
+/config/crd/bases/*
+
+# Local Kubernetes & Kind configs
+kubeconfig
+.kube/
+*.kubeconfig
+
+# IDE & OS files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment & credentials
+.env
+*.pem
+*.key
+*.crt
