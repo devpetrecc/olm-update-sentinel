@@ -1,0 +1,29 @@
+apiVersion: sentinel.devpetrecc.io/v1alpha1
+kind: SentinelConfig
+metadata:
+  name: sentinel-config
+  namespace: olm-update-sentinel-system
+spec:
+  slack:
+    enabled: true
+    webhookUrlSecret:
+      name: sentinel-notification-secrets
+      key: slack-webhook-url
+
+  teams:
+    enabled: true
+    webhookUrlSecret:
+      name: sentinel-notification-secrets
+      key: teams-webhook-url
+
+  email:
+    enabled: true
+    smtpHost: "smtp.office365.com"
+    smtpPort: 587
+    from: "alerts@yourdomain.com"
+    to:
+      - "devops-team@yourdomain.com"
+      - "oncall@yourdomain.com"
+    passwordSecret:
+      name: sentinel-notification-secrets
+      key: outlook-smtp-password

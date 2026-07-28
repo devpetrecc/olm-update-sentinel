@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: olm-update-sentinel-rules
+  namespace: olm-update-sentinel-system
+spec:
+  groups:
+    - name: olm-update-sentinel.rules
+      rules:
+        - alert: OLMOperatorUpdateAvailable
+          expr: olm_operator_update_available == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Update available for OLM operator {{ $labels.package }}"
+            description: "Package {{ $labels.package }} in namespace {{ $labels.namespace }} can be updated from {{ $labels.installed_csv }} to {{ $labels.current_csv }}."
+
+        - alert: OLMOperatorNewChannelAvailable
+          expr: olm_operator_new_channel_available == 1
+          for: 1h
+          labels:
+            severity: info
+          annotations:
+            summary: "New update channel detected for {{ $labels.package }}"
+            description: "Package {{ $labels.package }} in namespace {{ $labels.namespace }} has newer channels available: {{ $labels.channels }}."
